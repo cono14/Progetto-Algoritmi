@@ -54,64 +54,6 @@ public class L2 implements CXPlayer {
         TIMEOUT = timeout_in_secs;
     }
 
-    /**
-     * Selects a free colum on game board.
-     * <p>
-     * Selects a winning column (if any), otherwise selects a column (if any)
-     * that prevents the adversary to win with his next move. If both previous
-     * cases do not apply, selects a random column.
-     * </p>
-     */
-    /*
-     * private int minimax(CXBoard B, int depth, boolean maximizingPlayer, int
-     * alpha, int beta) throws TimeoutException {
-     * try {
-     * if (depth == 0 || B.gameState() != CXGameState.OPEN) {
-     * if (B.gameState() != CXGameState.OPEN && B.gameState() == myWin) {
-     * return Integer.MAX_VALUE; // win
-     * } else if (B.gameState() != CXGameState.OPEN && B.gameState() == yourWin) {
-     * return Integer.MIN_VALUE; // loss
-     * } else {
-     * return 0; // draw
-     * }
-     * } else if (maximizingPlayer) {
-     * int bestValue = Integer.MIN_VALUE;
-     * for (int i : B.getAvailableColumns()) {
-     * checktime();
-     * // CXBoard child = B.clone();
-     * B.markColumn(i);
-     * int value = minimax(B, depth - 1, false, alpha, beta);
-     * bestValue = Math.max(bestValue, value);
-     * alpha = Math.max(alpha, value);
-     * if (beta <= alpha) {
-     * break;
-     * }
-     * }
-     * return bestValue;
-     * } else {
-     * int bestValue = Integer.MAX_VALUE;
-     * for (int i : B.getAvailableColumns()) {
-     * checktime();
-     * // CXBoard child = B.clone();
-     * B.markColumn(i);
-     * int value = minimax(B, depth - 1, true, alpha, beta);
-     * bestValue = Math.min(bestValue, value);
-     * beta = Math.min(beta, value);
-     * if (beta <= alpha) {
-     * break;
-     * }
-     * }
-     * return bestValue;
-     * }
-     * } catch (TimeoutException e) {
-     * throw e;
-     * } catch (Exception e) {
-     * // handle any other exceptions
-     * e.printStackTrace();
-     * return 0; // or any other appropriate value
-     * }
-     * }
-     */
 
     public int alphabeta(CXBoard B, int depth, boolean maximizingPlayer, int alpha, int beta) throws TimeoutException {
         if (depth == 0 || B.gameState() != CXGameState.OPEN) {
