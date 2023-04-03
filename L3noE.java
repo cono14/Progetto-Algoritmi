@@ -96,7 +96,24 @@ public class L3noE implements CXPlayer {
         }
     }
 
-    public static int getConsecutiveMarks(CXBoard B, int x, int y, int numToConnect) {
+    public static int getX(CXBoard B, int y) {
+        int count = 0;
+        for (int i = 0; i < B.M; i++) {
+            if (B.cellState(i, y) != CXCellState.FREE) {
+                count++;
+            } else {
+                break;
+            }
+        }
+        if (count == 0) {
+            return 0;
+        } else {
+            return count + 1;
+        }
+    }
+
+    public static int winningColumn(CXBoard B, int y, int numToConnect) {
+        int x = getX(B, y);
         CXCellState player = B.cellState(x, y);
         int count = 0;
         int column = -1;
@@ -116,7 +133,7 @@ public class L3noE implements CXPlayer {
                     }
                 }
             } else {
-                count = 0;
+                break;
             }
         }
         count = 0;
@@ -134,7 +151,7 @@ public class L3noE implements CXPlayer {
                     }
                 }
             } else {
-                count = 0;
+                break;
             }
         }
 
@@ -172,7 +189,7 @@ public class L3noE implements CXPlayer {
                         }
                     }
                 } else {
-                    count = 0;
+                    break;
                 }
             }
         }
@@ -208,7 +225,7 @@ public class L3noE implements CXPlayer {
                         }
                     }
                 } else {
-                    count = 0;
+                    break;
                 }
             }
         }
@@ -227,6 +244,11 @@ public class L3noE implements CXPlayer {
             System.out.println("Trying");
             for (int i : L) {
                 checktime();
+                int col = winningColumn(B, i, B.X);
+                if (col != -1) {
+                    return col;
+                }
+                System.out.println("got here");
                 B.markColumn(i);
                 int value = alphabeta(B, 6, Integer.MIN_VALUE, Integer.MAX_VALUE, false);
                 B.unmarkColumn();
@@ -234,6 +256,7 @@ public class L3noE implements CXPlayer {
                     bestValue = value;
                     bestMove = i;
                 }
+                System.out.println("got here2");
             }
             // Select a random column if no valid moves are available
             if (bestMove == -1) {
