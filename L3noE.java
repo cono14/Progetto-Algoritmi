@@ -204,7 +204,7 @@ public class L3noE implements CXPlayer {
                 if (B.cellState(r, c) == player) {
                     count++;
                     if (count == numToConnect - 1) {
-                        if (r + 1 <= B.N && c - 1 >= 0 && B.cellState(r + 1, c - 1) == CXCellState.FREE
+                        if (r + 1 < B.N && c - 1 >= 0 && B.cellState(r + 1, c - 1) == CXCellState.FREE
                                 && (B.cellState(r, c - 1) == CXCellState.P1
                                         || B.cellState(r, c - 1) == CXCellState.P2)) {
                             column = c - 1;
@@ -244,12 +244,13 @@ public class L3noE implements CXPlayer {
             System.out.println("Trying");
             for (int i : L) {
                 checktime();
-                int col = winningColumn(B, i, B.X);
-                if (col != -1) {
-                    return col;
-                }
-                System.out.println("got here");
                 B.markColumn(i);
+                if (B.gameState() == myWin) {
+                    return i;
+                } else if (B.gameState() == yourWin) {
+                    System.out.println("Avoided");
+                    return i;
+                }
                 int value = alphabeta(B, 6, Integer.MIN_VALUE, Integer.MAX_VALUE, false);
                 B.unmarkColumn();
                 if (value > bestValue) {
