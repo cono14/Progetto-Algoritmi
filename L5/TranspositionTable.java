@@ -6,9 +6,9 @@ import connectx.CXBoard;
 
 public class TranspositionTable {
     private Random rand;
-    private int[][] transposition_table;
-    private long[][][] zobrist;
-    private long currenthash;
+    protected int[][] transposition_table;
+    protected long[][] zobrist;
+    protected long currenthash;
     private int best_move;
     private static int SIZE = 1024 * 1024 * 4; // 4MB
     private static int flag_correct = 0;
@@ -17,12 +17,10 @@ public class TranspositionTable {
     private static int ERROR = Integer.MAX_VALUE;
 
     public TranspositionTable(CXBoard B) {
-        zobrist = new long[B.M][B.N][2];
-        for (int i = 0; i < B.M; i++) {
-            for (int j = 0; j < B.N; j++) { // initializing the zobrist table
-                zobrist[i][j][0] = rand.nextLong();
-                zobrist[i][j][1] = rand.nextLong();
-            }
+        zobrist = new long[B.N][2];
+        for (int j = 0; j < B.N; j++) { // initializing the zobrist table
+            zobrist[j][0] = rand.nextLong();
+            zobrist[j][1] = rand.nextLong();
         }
         transposition_table = new int[SIZE][];
         currenthash = 0;
@@ -68,7 +66,7 @@ public class TranspositionTable {
 
 /*
  * Idea dietro lo zobrist system:
- * 1 -> genrare un random long per ogni possibile cella della griglia
+ * 1 -> generare un random long per ogni possibile cella della griglia
  * 2 -> si inizia con un hash = 0 e poi bisogna fare lo XOR con il valore
  * zobrist precedente per quella cella per ottenere l'indice di quella cella
  * nella
