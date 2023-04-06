@@ -9,6 +9,7 @@ import java.util.TreeSet;
 import java.util.Random;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,22 +58,28 @@ public class L5 implements CXPlayer {
     }
 
     public int alpahabeta(int depth, int alpha, int beta, boolean maximizingPlayer) {
-        int score = transpositionTable.get(depth, alpha, beta); // verifico subito se il mio valore è già presente nella
-                                                                // transposition table
-        if (score != transpositionTable.ERROR) {
+        int score = transpositionTable.get(depth, alpha, beta); // verifico subito se
+        // il mio valore è già presente nella
+        // transposition table
+
+        if (score != TranspositionTable.ERROR) {
             return score; // se c'è lo ritorno
+        } else {
+            score = 1;
         }
+
         if (depth == 0 || B.gameState() != CXGameState.OPEN) { // se sono arrivato a profondità 0 valuto il valore con
                                                                // evaluation, lo salvo nella tt e lo ritorno
-            score = 1; // replace with evaluation function
-            transpositionTable.put(depth, best_move, score, transpositionTable.flag_correct);
+            // replace with evaluation function
+            // transpositionTable.put(depth, best_move, score,
+            // transpositionTable.flag_correct);
             return score;
         }
         int bestScore = maximizingPlayer ? Integer.MIN_VALUE : Integer.MAX_VALUE; // verifico se il mio player
                                                                                   // massimizza o minimizza
         for (int i : B.getAvailableColumns()) { // scorro sulle colonne libere
             markColumnHash(i);
-            int currentScore = alpahabeta(depth - 1, alpha, beta, !maximizingPlayer);
+            int currentScore = alpahabeta(depth - 1, alpha, beta, maximizingPlayer);
             unmarkColumnHash();
 
             if (maximizingPlayer) {
@@ -95,53 +102,44 @@ public class L5 implements CXPlayer {
 
         }
         transpositionTable.put(depth, best_move, bestScore, TranspositionTable.flag_correct); // cache score in
-                                                                                              // transposition table
+        // transposition table
         return bestScore;
 
     }
 
-    public int AlphaBetaRoot(int depth) {
-        int bestColumn = -1;
-        int alpha = Integer.MIN_VALUE;
-        int beta = Integer.MAX_VALUE;
-        int bestValue = -1;
-
+    public int selectColumn(CXBoard B) {
+        START = System.currentTimeMillis(); // Save starting time
         Integer[] L = B.getAvailableColumns();
-        for (int i : L) {
+        int save = L[rand.nextInt(L.length)]; // Save a random column
+        int bestValue = -1;
+        int depth = B.getAvailableColumns().length;
+        int bestMove = -1;
+        System.out.println("Trying");
+        for (int i : B.getAvailableColumns()) {
             checktime();
             markColumnHash(i);
             if (B.gameState() == myWin) {
                 return i;
             }
-            int value = alpahabeta(depth, alpha, beta, false);
+            int value = alpahabeta(depth, Integer.MIN_VALUE, Integer.MAX_VALUE, false);
             unmarkColumnHash();
             if (value > bestValue) {
                 bestValue = value;
-                bestColumn = i;
+                bestMove = i;
             }
+            System.out.println("got here2");
         }
-        return bestColumn;
-    }
-
-    public int selectColumn(CXBoard B) {
-        START = System.currentTimeMillis();
-        int depth = 1;
-        int bestMove = -1;
-        int newColumn = -1;
-        int maxDepth = B.getAvailableColumns().length;
-
-        while (!checktime() && depth <= maxDepth) {
-            newColumn = AlphaBetaRoot(depth);
-            if (newColumn != -1) {
-                bestMove = newColumn;
-            }
-            depth++;
+        // Select a random column if no valid moves are available
+        if (bestMove == -1) {
+            System.err.println("No valid moves available! Random column selected.");
+            return save;
+        } else {
+            return bestMove;
         }
-        return bestMove;
     }
 
     private boolean checktime() {
-        return (System.currentTimeMillis() - START) / 1000.0 > TIMEOUT * (93.0 / 100.0);
+        return (System.currentTimeMillis() - START) / 1000.0 > TIMEOUT * (99.0 / 100.0);
     }
 
     public String playerName() {
