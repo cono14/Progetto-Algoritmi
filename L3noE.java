@@ -35,6 +35,64 @@ public class L3noE implements CXPlayer {
         TIMEOUT = timeout_in_secs;
     }
 
+    public int eval(CXBoard board, int col, boolean maximizingPlayer) {
+        /*funzione che valuta, in base alla mossa appena fatta, un "punteggio":
+        versione 1: maggiore e' la concentrazione di pezzi dello stesso giocatore,
+        dopo aver mosso, maggiore sara' il punteggio*/
+        int best=0;
+        int secondbest=0;
+        CXCellState s = B[i][j];
+		int n;
+
+		// Useless pedantic check
+		if (s == CXCellState.FREE)
+			return false;
+
+		// Horizontal check
+		n = 1;
+		for (int k = 1; j-k >= 0 && B[i][j-k] == s; k++) n++; // backward check
+		for (int k = 1; j+k <  N && B[i][j+k] == s; k++) n++; // forward check
+		best=n;
+
+		// Vertical check
+		n = 1;
+		for (int k = 1; i+k <  M && B[i+k][j] == s; k++) n++;
+        best=Math.max(best, n);
+		secondbest=Math.min(best, n);
+
+		// Diagonal check
+		n = 1;
+		for (int k = 1; i-k >= 0 && j-k >= 0 && B[i-k][j-k] == s; k++) n++; // backward check
+		for (int k = 1; i+k <  M && j+k <  N && B[i+k][j+k] == s; k++) n++; // forward check
+		if(n > best){
+            secondbest=best;
+            best=n;
+        }
+        else {
+            if(n > secondbest){
+                secondbest=n;
+            }
+        }
+
+		// Anti-diagonal check
+		n = 1;
+		for (int k = 1; i-k >= 0 && j+k <  N && B[i-k][j+k] == s; k++) n++; // backward check
+		for (int k = 1; i+k <  M && j-k >= 0 && B[i+k][j-k] == s; k++) n++; // forward check
+		if(n > best){
+            secondbest=best;
+            best=n;
+        }
+        else {
+            if(n > secondbest){
+                secondbest=n;
+            }
+        }
+        int sol= (best+secondbest*0.5);
+		return sol;
+
+    }
+
+
     public int alphabeta(CXBoard board, int depth, int alpha, int beta, boolean maximizingPlayer) {
         if (depth == 0 || board.gameState() != CXGameState.OPEN) {
             if (board.gameState() != CXGameState.OPEN && board.gameState() == myWin) {
@@ -42,7 +100,7 @@ public class L3noE implements CXPlayer {
             } else if (board.gameState() != CXGameState.OPEN && board.gameState() == yourWin) {
                 return Integer.MIN_VALUE; // loss
             } else {
-                return 0; // draw
+                return 0; // draw --> funzione eval
             }
         }
         // Massimizzare la valutazione per il giocatore corrente
@@ -288,6 +346,7 @@ public class L3noE implements CXPlayer {
     }
 
 }
+
 
 /*
  * Idea -> scrivere un algoritmo che conta il numero di numero di pedine

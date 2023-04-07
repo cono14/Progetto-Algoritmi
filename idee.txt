@@ -1,0 +1,15 @@
+funzione basica eval:
+conta quanti slot del tuo tipo sono in ogni direzione:
+restituisce la smma delle due direzioni in cui ci sono 
+maggiori slot continui; le altre direzioni vengono ignorate (o possono essere 
+contate con peso minore..?)
+
+idea: se si è in vantaggio, contiene scavare piu' in
+profondita', o piu' in ampiezza? possibile modifica della ampiezza 
+in modo dinamico durante l'esecuzione del codice
+
+idea: iniziare a calcolare le mosse dal centro della plancia di gioco, dsto
+che sono le mosse tendenzialmente migliori (impensabile
+in forza4 iniziaare con un pezzo nell'angolo)
+
+CXBoard.java: funzione is winningmove che conta quanti pezzi continui
