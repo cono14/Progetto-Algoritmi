@@ -73,6 +73,10 @@ public class L5 implements CXPlayer {
         //colonna i, ma non la altezza j a cui finisce un tassello inseritya nella colonna i
         CXCellState s = B.cellState(i, j);
 		int n;
+        
+        //DA AGGIUNGERE UNO STOP SE SI CONTANO GIA' B.X PEZZI CONSECUTIVI
+
+
 
 		// Useless pedantic check
 		if (s == CXCellState.FREE)
