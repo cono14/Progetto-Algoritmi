@@ -56,14 +56,21 @@ public class L5 implements CXPlayer {
         // precedente
         B.unmarkColumn();
     }
+      public static int getX(CXBoard B, int y) {
+        int count = 0;
+        for (int i = 0; i < B.M; i++) {
+            if (B.cellState(i, y) != CXCellState.FREE) {
+                count++;
+            } else {
+                break;
+            }
+        }
+        return count;
+    }
 
-    
     public int eval(CXBoard board, int col) {
-        /*funzione che valuta, in base alla mossa appena fatta, un "punteggio":
-        versione 1: si restituisce un valore che dipende dalla concentrazione maggiore
-        di tasselli vicino a dove e' stata compiuta la mossa; +1 per un proprio tassello,
-        +0 per una cella vuota, interruzione del conto de c' e' un tassello dell'avversario
 
+<<<<<<< HEAD
         costo approssimato: 7 * n dove n sono i pezzi da connettere, e 7 sono tutti i 
         singoli check per stabilire spazi liberi*/
         int best=0;
@@ -105,22 +112,80 @@ public class L5 implements CXPlayer {
 		if(n > secondbest){
             best=Math.max(best, n);
 		    secondbest=Math.min(best, n);
+=======
+        int best = 0;
+        int secondbest = 0;
+        int last_row = getX(board, col);
+        CXCellState s = B.cellState(last_row, col);
+        int n;
+        if (s == CXCellState.FREE) {
+            return -1;
+>>>>>>> b58e6bc29948aad40e327e83063c947286b6c0ea
         }
-        
-		// Anti-diagonal check
-		n = 1;
-		for (int k = 1; i-k >= 0 && j+k <  N && (B.cellState(i-k, j+k) == s || B.cellState(i-k, j+k) == s); k++){
-            if (B.cellState(i-k, j+k) == s) n++;} // backward check
-		for (int k = 1; i+k <  M && j-k >= 0 && (B.cellState(i+k, j-k) == s || B.cellState(i+k, j-k) == s); k++){
-            if (B.cellState(i+k, j-k) == s) n++;} // forward check
-        if(n > secondbest){
-            best=Math.max(best, n);
-            secondbest=Math.min(best, n);            
+
+        n = 1;
+        for (int k = 1; col - k >= 0
+                && (B.cellState(last_row, col - k) == s || B.cellState(last_row, col - k) == CXCellState.FREE); k++) {
+            if (B.cellState(last_row, col - k) == s)
+                n++;
+        } // backward check
+        for (int k = 1; col + k < B.N
+                && (B.cellState(last_row, col + k) == s || B.cellState(last_row, col + k) == CXCellState.FREE); k++) {
+            if (B.cellState(last_row, col + k) == s)
+                n++;
+        } // forward check
+        best = n;
+
+        // Vertical check
+        n = 1;
+        for (int k = 1; last_row + k < B.M
+                && (B.cellState(last_row + k, col) == s || B.cellState(last_row + k, col) == CXCellState.FREE); k++) {
+            if (B.cellState(last_row + k, col) == s)
+                n++;
         }
-        if(best>=B.X) return 9999; //in alternativa, Integer.MAX_VALUE
-        else{
-        int sol= (best+secondbest*0.5);
-		return sol;
+        best = Math.max(best, n);
+        secondbest = Math.min(best, n);
+
+        // Diagonal check
+        n = 1;
+        for (int k = 1; last_row - k >= 0 && col - k >= 0
+                && (B.cellState(last_row - k, col - k) == s || B.cellState(last_row - k, col - k) == s); k++) {
+            if (B.cellState(last_row - k, col - k) == s)
+                n++;
+        } // backward check
+        for (int k = 1; last_row + k < B.M && col + k < B.N
+                && (B.cellState(last_row + k, col + k) == s || B.cellState(last_row + k, col + k) == s); k++) {
+            if (B.cellState(last_row + k, col + k) == s)
+                n++;
+        } // forward check
+        if (n > secondbest) {
+            best = Math.max(best, n);
+            secondbest = Math.min(best, n);
+        }
+
+        // Anti-diagonal check
+        n = 1;
+        for (int k = 1; last_row - k >= 0 && col + k < B.N
+                && (B.cellState(last_row - k, col + k) == s || B.cellState(last_row - k, col
+                        + k) == s); k++) {
+            if (B.cellState(last_row - k, col + k) == s)
+                n++;
+        } // backward check
+        for (int k = 1; last_row + k < B.M && col - k >= 0
+                && (B.cellState(last_row + k, col - k) == s || B.cellState(last_row + k, col
+                        - k) == s); k++) {
+            if (B.cellState(last_row + k, col - k) == s)
+                n++;
+        } // forward check
+        if (n > secondbest) {
+            best = Math.max(best, n);
+            secondbest = Math.min(best, n);
+        }
+        if (best >= B.X)
+            return 9999; // in alternativa, Integer.MAX_VALUE
+        else {
+            int sol = (int) (best + secondbest * 0.5);
+            return sol;
         }
     }
 
