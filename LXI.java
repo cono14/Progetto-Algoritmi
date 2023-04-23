@@ -25,9 +25,7 @@ public class LXI implements CXPlayer {
     private int[][] transposition_table;
     private static int SIZE = 1024 * 1024 * 6;
     private long[][][] zobrist;
-    private static int MAX = 999999;
-    private static int MIN = -MAX;
-    private int TIMEOUT_VALUE = MAX;
+    private int TIMEOUT_VALUE = 999999;
     private static int ERROR = Integer.MAX_VALUE;
     private static int flag_exact = 0;
     private static int flag_lower = -1;
@@ -112,6 +110,7 @@ public class LXI implements CXPlayer {
             if (t_element[5] == flag_upper && t_element[4] >= beta) {
                 return beta;
             }
+
         }
         return ERROR;
     }
