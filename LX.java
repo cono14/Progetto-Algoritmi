@@ -81,12 +81,14 @@ public class LX implements CXPlayer {
         // Diagonal check
         n = 1;
         for (int k = 1; last_row - k >= 0 && col - k >= 0
-                && (board.cellState(last_row - k, col - k) == s || board.cellState(last_row - k, col - k) == s); k++) {
+                && (board.cellState(last_row - k, col - k) == s
+                        || board.cellState(last_row - k, col - k) == CXCellState.FREE); k++) {
             if (board.cellState(last_row - k, col - k) == s)
                 n++;
         } // backward check
         for (int k = 1; last_row + k < board.M && col + k < board.N
-                && (board.cellState(last_row + k, col + k) == s || board.cellState(last_row + k, col + k) == s); k++) {
+                && (board.cellState(last_row + k, col + k) == s
+                        || board.cellState(last_row + k, col + k) == CXCellState.FREE); k++) {
             if (board.cellState(last_row + k, col + k) == s)
                 n++;
         } // forward check
@@ -99,13 +101,13 @@ public class LX implements CXPlayer {
         n = 1;
         for (int k = 1; last_row - k >= 0 && col + k < board.N
                 && (board.cellState(last_row - k, col + k) == s || board.cellState(last_row - k, col
-                        + k) == s); k++) {
+                        + k) == CXCellState.FREE); k++) {
             if (board.cellState(last_row - k, col + k) == s)
                 n++;
         } // backward check
         for (int k = 1; last_row + k < board.M && col - k >= 0
                 && (board.cellState(last_row + k, col - k) == s || board.cellState(last_row + k, col
-                        - k) == s); k++) {
+                        - k) == CXCellState.FREE); k++) {
             if (board.cellState(last_row + k, col - k) == s)
                 n++;
         } // forward check
@@ -191,6 +193,36 @@ public class LX implements CXPlayer {
         }
     }
 
+    public int centerColumn(CXBoard B, CXCell MC[]) {
+        if (MC.length == 0 || MC.length == 1) {
+            B.markColumn(B.N / 2);
+            return B.N / 2;
+        }
+        return -1;
+    }
+
+    public int isLosingColumn(CXBoard B) {
+        int col = B.getAvailableColumns()[0];
+        B.markColumn(col); // marco la colonna 0
+        for (int k = 1; k < B.getAvailableColumns().length; k++) {
+            if (k != col && B.gameState() == CXGameState.OPEN) { // per evitare l'errore 'Game'
+                int col_2 = B.getAvailableColumns()[k];
+                B.markColumn(col_2);
+                if (B.gameState() == yourWin) {
+                    System.out.println("Sconfitta evitata");
+                    B.unmarkColumn(); // UNDO YOUR MOVE
+                    B.unmarkColumn(); // undo my move
+                    B.markColumn(col_2); // steal your move
+                    return col_2;
+                } else {
+                    B.unmarkColumn(); //
+                }
+            }
+        }
+        B.unmarkColumn();
+        return -1;
+    }
+
     public int selectColumn(CXBoard B) {
         START = System.currentTimeMillis(); // Save starting time
 
@@ -198,6 +230,15 @@ public class LX implements CXPlayer {
         int save = L[rand.nextInt(L.length)]; // Save a random column
         int bestValue = -1;
         int bestMove = -1;
+        int col = centerColumn(B, B.getMarkedCells());
+        if (col != -1)
+            return col;
+
+        int possible_lose = isLosingColumn(B);
+        if (possible_lose != -1) {
+            return possible_lose;
+        }
+
         for (int i : L) {
             B.markColumn(i);
             if (B.gameState() == myWin) {
@@ -211,7 +252,6 @@ public class LX implements CXPlayer {
                 bestValue = value;
                 bestMove = i;
             }
-            System.out.println("got here2");
         }
         // Select a random column if no valid moves are available
         if (bestMove == -1) {
