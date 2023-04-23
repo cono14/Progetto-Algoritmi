@@ -193,17 +193,17 @@ public class LX implements CXPlayer {
         }
     }
 
-    public int centerColumn(CXBoard B, CXCell MC[]) {
-        if (MC.length == 0 || MC.length == 1) {
+    public int center(CXBoard B) {
+        if (B.getMarkedCells().length == 0 || B.getMarkedCells().length == 1) {
             B.markColumn(B.N / 2);
             return B.N / 2;
         }
         return -1;
     }
 
-    public int isLosingColumn(CXBoard B) {
+    public int LosingColumn(CXBoard B) {
         int col = B.getAvailableColumns()[0];
-        B.markColumn(col); // marco la colonna 0
+        B.markColumn(col);
         for (int k = 1; k < B.getAvailableColumns().length; k++) {
             if (k != col && B.gameState() == CXGameState.OPEN) { // per evitare l'errore 'Game'
                 int col_2 = B.getAvailableColumns()[k];
@@ -230,11 +230,11 @@ public class LX implements CXPlayer {
         int save = L[rand.nextInt(L.length)]; // Save a random column
         int bestValue = -1;
         int bestMove = -1;
-        int col = centerColumn(B, B.getMarkedCells());
+        int col = center(B);
         if (col != -1)
             return col;
 
-        int possible_lose = isLosingColumn(B);
+        int possible_lose = LosingColumn(B);
         if (possible_lose != -1) {
             return possible_lose;
         }
