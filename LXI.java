@@ -31,6 +31,7 @@ public class LXI implements CXPlayer {
     private static int flag_lower = -1;
     private static int flag_upper = 1;
     private long hash_value;
+    int[][] killerMoves;
 
     public LXI() {
     }
@@ -49,6 +50,12 @@ public class LXI implements CXPlayer {
                 zobrist[i][j][0] = rand.nextLong();
                 zobrist[i][j][1] = rand.nextLong();
             }
+        }
+        int max_cells = M * N;
+        killerMoves = new int[max_cells][2];
+        for (int i = 0; i < max_cells; i++) {
+            killerMoves[i][0] = -1;
+            killerMoves[i][1] = -1;
         }
     }
 
@@ -203,6 +210,31 @@ public class LXI implements CXPlayer {
         }
     }
 
+    private int[] getOrderedColumns(CXBoard B, int depth, int lenght) {
+        int[] orderedColumns = new int[lenght + 3];
+        int j = 0;
+
+        if (depth > 0) {
+            for (int i = 0; i < 2; i++) {
+                int killerMove = killerMoves[depth][i];
+                if (killerMove != -1 && !B.fullColumn(killerMove)) {
+                    orderedColumns[j] = killerMove;
+                    j++;
+                }
+            }
+        } // controlliamo se alla profondità precedente abbiamo trovato delle killer moves
+          // e aggiorniamo
+
+        for (int col : B.getAvailableColumns()) {
+            if (!Arrays.asList(orderedColumns).contains(col)) { // controlliamo di non aggiungere due volte le killer
+                                                                // moves
+                orderedColumns[j] = col;
+                j++;
+            }
+        }
+        return Arrays.copyOf(orderedColumns, j);
+    }
+
     public int alphabeta(CXBoard board, int depth, int alpha, int beta, boolean maximizingPlayer) {
         int value, valueKind = flag_exact;
         int localBestMove = -1;
@@ -228,7 +260,8 @@ public class LXI implements CXPlayer {
         // Massimizzare la valutazione per il giocatore corrente
         if (maximizingPlayer) {
             int bestValue = Integer.MIN_VALUE;
-            for (int column : board.getAvailableColumns()) {
+            int lenght = (board.M * board.N) - board.getMarkedCells().length;
+            for (int column : getOrderedColumns(board, depth, lenght)) {
                 // Effettuare la mossa sulla colonna selezionata
 
                 doMove(board, column);
@@ -244,6 +277,8 @@ public class LXI implements CXPlayer {
                 // Aggiornare il valore di alpha
                 if (bestValue >= beta) {
                     valueKind = flag_upper;
+                    killerMoves[depth][1] = killerMoves[depth][0];
+                    killerMoves[depth][0] = column;
                 } else if (bestValue <= alpha) {
                     valueKind = flag_lower;
                 } else {
@@ -267,8 +302,8 @@ public class LXI implements CXPlayer {
         // Minimizzare la valutazione per l'avversario
         else {
             int bestValue = Integer.MAX_VALUE;
-
-            for (int column : board.getAvailableColumns()) {
+            int lenght = (board.M * board.N) - board.getMarkedCells().length;
+            for (int column : getOrderedColumns(board, depth, lenght)) {
                 // Effettuare la mossa sulla colonna selezionata dall'avversario
                 doMove(board, column);
 
@@ -285,6 +320,8 @@ public class LXI implements CXPlayer {
                     valueKind = flag_upper;
                 } else if (bestValue <= alpha) {
                     valueKind = flag_lower;
+                    killerMoves[depth][1] = killerMoves[depth][0];
+                    killerMoves[depth][0] = column;
                 } else {
                     valueKind = flag_exact;
                 }
@@ -350,21 +387,29 @@ public class LXI implements CXPlayer {
             return possible_lose;
         }
 
-        for (int i : L) {
-            doMove(B, i);
+        int current_depth_limit = 3;
+        int max_cells = B.M * B.N;
+        int max_depth = max_cells;
+        while (current_depth_limit <= max_depth && !checktime()) {
+            for (int i : L) {
+                doMove(B, i);
 
-            if (B.gameState() == myWin) {
-                System.out.println("Serve a qualcosa"); // serve a qualcosa
-                return i;
-            }
+                if (B.gameState() == myWin) {
+                    System.out.println("Serve a qualcosa"); // serve a qualcosa
+                    return i;
+                }
 
-            int value = alphabeta(B, 6, Integer.MIN_VALUE, Integer.MAX_VALUE, false);
-            undoMove(B);
-            if (value > bestValue) {
-                bestValue = value;
-                best_Move = i;
+                int value = alphabeta(B, current_depth_limit, Integer.MIN_VALUE, Integer.MAX_VALUE, false);
+                undoMove(B);
+                if (value > bestValue) {
+                    bestValue = value;
+                    best_Move = i;
+                }
             }
+            max_depth -= B.getMarkedCells().length;
+            current_depth_limit++;
         }
+
         // Select a random column if no valid moves are available
         if (best_Move == -1) {
             System.err.println("No");
