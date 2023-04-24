@@ -51,9 +51,8 @@ public class LXI implements CXPlayer {
                 zobrist[i][j][1] = rand.nextLong();
             }
         }
-        int max_cells = M * N;
-        killerMoves = new int[max_cells][2];
-        for (int i = 0; i < max_cells; i++) {
+        killerMoves = new int[N + 1][2];
+        for (int i = 0; i < N + 1; i++) {
             killerMoves[i][0] = -1;
             killerMoves[i][1] = -1;
         }
@@ -210,8 +209,8 @@ public class LXI implements CXPlayer {
         }
     }
 
-    private int[] getOrderedColumns(CXBoard B, int depth, int lenght) {
-        int[] orderedColumns = new int[lenght + 3];
+    private int[] getOrderedColumns(CXBoard B, int depth) {
+        int[] orderedColumns = new int[B.getAvailableColumns().length + 3];
         int j = 0;
 
         if (depth > 0) {
@@ -260,8 +259,8 @@ public class LXI implements CXPlayer {
         // Massimizzare la valutazione per il giocatore corrente
         if (maximizingPlayer) {
             int bestValue = Integer.MIN_VALUE;
-            int lenght = (board.M * board.N) - board.getMarkedCells().length;
-            for (int column : getOrderedColumns(board, depth, lenght)) {
+
+            for (int column : getOrderedColumns(board, depth)) {
                 // Effettuare la mossa sulla colonna selezionata
 
                 doMove(board, column);
@@ -302,8 +301,8 @@ public class LXI implements CXPlayer {
         // Minimizzare la valutazione per l'avversario
         else {
             int bestValue = Integer.MAX_VALUE;
-            int lenght = (board.M * board.N) - board.getMarkedCells().length;
-            for (int column : getOrderedColumns(board, depth, lenght)) {
+
+            for (int column : getOrderedColumns(board, depth)) {
                 // Effettuare la mossa sulla colonna selezionata dall'avversario
                 doMove(board, column);
 
@@ -388,8 +387,7 @@ public class LXI implements CXPlayer {
         }
 
         int current_depth_limit = 3;
-        int max_cells = B.M * B.N;
-        int max_depth = max_cells;
+        int max_depth = B.getAvailableColumns().length;
         while (current_depth_limit <= max_depth && !checktime()) {
             for (int i : L) {
                 doMove(B, i);
@@ -406,7 +404,7 @@ public class LXI implements CXPlayer {
                     best_Move = i;
                 }
             }
-            max_depth -= B.getMarkedCells().length;
+            max_depth = B.getAvailableColumns().length;
             current_depth_limit++;
         }
 
