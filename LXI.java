@@ -5,17 +5,9 @@ import connectx.CXBoard;
 import connectx.CXGameState;
 import connectx.CXCell;
 import connectx.CXCellState;
-
-import java.util.TreeSet;
 import java.util.Random;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeoutException;
-import connectx.CXCell;
 
 public class LXI implements CXPlayer {
     private Random rand;
@@ -317,9 +309,10 @@ public class LXI implements CXPlayer {
         int bestValue = Integer.MIN_VALUE;
         int bestMove = -1;
         for (int i : HistoryHeuristic(B)) {
+            System.out.println("Inizio una nuova iterazione con bestMove a: " + bestMove);
             doMove(B, i);
             if (B.gameState() == myWin) {
-                System.out.println("Serve a qualcosaID"); // serve a qualcosa
+                System.out.println("LXI wins"); // serve a qualcosa
                 return i;
             }
             value = alphabeta(B, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, false);
@@ -328,10 +321,12 @@ public class LXI implements CXPlayer {
                 break;
             }
             if (value > bestValue) {
+                System.out.println("sto aggiornando bestMove a:" + i);
                 bestValue = value;
                 bestMove = i;
             }
         }
+        System.out.println(bestMove);
         return bestMove;
     }
 
@@ -347,11 +342,11 @@ public class LXI implements CXPlayer {
         int col = B.getAvailableColumns()[0];
         doMove(B, col);
         for (int k = 1; k < B.getAvailableColumns().length; k++) {
-            if (k != col && B.gameState() == CXGameState.OPEN) { // per evitare l'errore 'Game'
+            if (B.gameState() == CXGameState.OPEN) {
                 int col_2 = B.getAvailableColumns()[k];
                 doMove(B, col_2);
                 if (B.gameState() == yourWin) {
-                    System.out.println("Sconfitta evitataID");
+                    System.out.println("LXI Lose Avoided");
                     undoMove(B);// UNDO YOUR MOVE
                     undoMove(B);// undo my move
                     doMove(B, col_2); // steal your move
@@ -367,42 +362,47 @@ public class LXI implements CXPlayer {
 
     private int iterativeDeepening(int max_depth, CXBoard B) {
         int current_depth_limit = 3;
-        Integer[] L = B.getAvailableColumns();
-        int safe = L[rand.nextInt(L.length)]; // Save a random column
+        int previousBestMove = HistoryHeuristic(B)[0];
         int bestMove = -1;
         while (!checktime() && current_depth_limit <= max_depth && B.gameState() == CXGameState.OPEN) {
-            int it_col = alphabetacol(B, current_depth_limit);
-            if (it_col == -1) {
-                break;
-            }
-            bestMove = it_col;
+            previousBestMove = bestMove;
+            bestMove = alphabetacol(B, current_depth_limit);
             current_depth_limit++;
         }
         if (bestMove == -1) {
-            System.out.println("Failed");
-            return safe;
+            if (previousBestMove == -1) {
+                System.out.println("Failed Completely");
+                Integer[] L = B.getAvailableColumns();
+                int safe = L[rand.nextInt(L.length)]; // Save a random column
+                return safe;
+            }
+            return previousBestMove; // ritorna la colonna più promettente trovata fin'ora
         }
-        System.out.println("Good Job");
+        System.out.println("Good Joblxi");
         return bestMove;
     }
 
     public int selectColumn(CXBoard B) {
         START = System.currentTimeMillis(); // Save starting time
         int col = center(B);
-        if (col != -1)
+        int max_depth = (B.M * B.N) - B.getMarkedCells().length;
+        if (col != -1) {
+            int value = iterativeDeepening(max_depth, B); // sfruttiamo tutto il tempo a nostra disposizione
             return col;
+        }
 
         int possible_lose = LosingColumn(B);
         if (possible_lose != -1) {
+            int value = iterativeDeepening(max_depth, B);
             return possible_lose;
         }
-        int max_depth = (B.M * B.N) - B.getMarkedCells().length;
+
         int bestMove = iterativeDeepening(max_depth, B);
         return bestMove;
     }
 
     private boolean checktime() {
-        if ((System.currentTimeMillis() - START) / 1000.0 >= TIMEOUT * (99.0 / 100.0)) {
+        if ((System.currentTimeMillis() - START) / 1000.0 >= TIMEOUT * (95.0 / 100.0)) {
             return true;
         }
         return false;
