@@ -154,7 +154,7 @@ public class LXMARGIN implements CXPlayer {
         // Vertical check
         n = 1;
         k = 1;
-        while (k<= board.X && last_row + k < board.M && (board.cellState(last_row - k, col) == s)) {
+        while (k<= board.X && last_row - k >=0 && (board.cellState(last_row - k, col) == s)) {
                 n++;
                 k++;
         }
