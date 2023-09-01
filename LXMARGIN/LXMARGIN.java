@@ -123,11 +123,13 @@ public class LXMARGIN implements CXPlayer {
         float margin = 0;
         int k = 1;
         while (k<= board.X && col - k >= 0 && (board.cellState(last_row, col - k) == s)) {
+            //prima si contano i pezzi collegati
             if (board.cellState(last_row, col - k) == s) n++;
             k++;
         }
         for (int j = k; j<= board.X && col - j >= 0 && (board.cellState(last_row, col - j) == s
                 || board.cellState(last_row, col - j) == CXCellState.FREE); j++) {
+                //poi si continua a guardare, sempre nel margine, per pezzi con collegati ma vicini
                     margin++;
                     if (board.cellState(last_row, col - j) == s) notconnected++;
                 }
@@ -235,8 +237,6 @@ public class LXMARGIN implements CXPlayer {
                 secondbest = Math.min(best, n + notconnected/margin);
             }
         }
-        ///if (best >= board.X)
-        ///    return Integer.MAX_VALUE;
             int sol = (int) (best + secondbest * 0.5);
             return sol;
         
