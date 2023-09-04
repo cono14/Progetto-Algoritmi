@@ -17,13 +17,13 @@ public class LXMARGIN implements CXPlayer {
     private long START;
     private long[][][] zobrist;
     private long hash_value;
-    private int size = 2 ^ 24;
+    private int size = 2 ^ 22;
     private Entry[] transpositionTable = new Entry[size]; // transposition table structure
     private int hashfEXACT = 0; // hash flag exact
     private int hashfALPHA = 1; // hash flag lower
     private int hashfBETA = 2; // hash flag upper
-    private int valUNKOWN = Integer.MIN_VALUE - 1;
-    private int timeout_v = 10000;
+    private int valUNKOWN = Integer.MIN_VALUE + 1;
+    private int timeout_v = Integer.MAX_VALUE - 1;
     private boolean firstPlayer;
     private int[] HistoryTable;
 
